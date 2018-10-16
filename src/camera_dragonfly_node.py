@@ -19,21 +19,21 @@ import math
 
 
 #Publish directly what we need for the motor
-global motor_pub
-motorpub = rospy.Publisher('/motor_state', String, queue_size=100)
-
-global mot_pub
-mot_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
-global mot_msg
-# Global variable..
-global ready_to_go
-ready_to_go = rospy.set_param('/waypoint_node/ready_to_go', False)#
-global success
-success = rospy.set_param('/waypoint_node/success', False)#
-global target_x
-target_x = rospy.set_param('/waypoint_node/target_x', 1.0)
-global target_y
-target_y = rospy.set_param('/waypoint_node/target_y', -1.5)
+# global motor_pub
+# motorpub = rospy.Publisher('/motor_state', String, queue_size=100)
+#
+# global mot_pub
+# mot_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
+# global mot_msg
+# # Global variable..
+# global ready_to_go
+# ready_to_go = rospy.set_param('/camera_dragonfly/ready_to_go', False)#
+# global success
+# success = rospy.set_param('/camera_dragonfly/success', False)#
+# global target_x
+# target_x = rospy.set_param('/camera_dragonfly/target_x', 1.0)
+# global target_y
+# target_y = rospy.set_param('/camera_dragonfly/target_y', -1.5)
 
 
 # def turning_callback(msg):
@@ -47,12 +47,12 @@ def run():
 
 
     start_time = time.time()
-    rospy.loginfo("Waypoint starting up")
-    pos_gps_pub = rospy.Publisher('/odom_dragonfly', Twist, queue_size=100)
+    rospy.loginfo("Camera_dragonfly_node starting up")
+    # pos_gps_pub = rospy.Publisher('/odom_dragonfly', Twist, queue_size=100)
     #basic program code
 
-    rospy.init_node('Waypoint')
-
+    rospy.init_node('Camera_dragonfly_node')
+    print('Yaaay')
     # rospy.Subscriber("/base_link_odom_camera_is1500", Odometry, turning_callback)
 
     # timer = rospy.Timer(rospy.Duration(0.1), main_timer_callback)
@@ -64,6 +64,7 @@ def run():
     # timer.shutdown()
 
 if __name__ == '__main__':
+    print("start")
     try:
         run()
     except rospy.ROSInterruptException:

@@ -204,10 +204,10 @@ install(DIRECTORY launch/
   PATTERN ".svn" EXCLUDE)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(PROGRAMS
+install(PROGRAMS
   src/camera_dragonfly_node.py
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/src
-# )
+)
 
 #############
 ## Testing ##
