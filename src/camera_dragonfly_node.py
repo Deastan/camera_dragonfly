@@ -93,8 +93,7 @@ def run():
 
         # Get only lat and long
         utm1 = utm.from_latlon(json_data[0]['position']['lat'], json_data[0]['position']['lng'])
-        # pri0nt utm
-        p
+        # print utm
         odom = Odometry()
         odom.header.stamp = rospy.Time.now()
         odom.header.frame_id = 'odom_cam_drag'
