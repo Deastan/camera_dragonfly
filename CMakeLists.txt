@@ -5,9 +5,19 @@ project(camera_dragonfly)
 # add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  sensor_msgs
+  std_msgs
+  nav_msgs
+  tf
+  tf2
+  tf2_ros
+  tf2_msgs
+  #Eigen3
+  #Eigen REQUIRED
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -99,10 +109,19 @@ find_package(catkin REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES camera_dragonfly
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  #INCLUDE_DIRS include ${Eigen_INCLUDE_DIRS}
+  INCLUDE_DIRS
+  include
+#  LIBRARIES
+  CATKIN_DEPENDS
+    roscpp
+    sensor_msgs
+    geometry_msgs
+    visualization_msgs
+    std_msgs
+    std_srvs
+    nav_msgs
+#  DEPENDS #Eigen
 )
 
 ###########
@@ -174,11 +193,20 @@ include_directories(
 #   PATTERN ".svn" EXCLUDE
 # )
 
+install(TARGETS
+    #list of shared libraries
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  PATTERN ".svn" EXCLUDE)
+
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# install(PROGRAMS
+  src/camera_dragonfly_node.py
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/src
 # )
 
 #############
