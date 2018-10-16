@@ -50,53 +50,46 @@ def run():
     global user
     global mpd
 
-    last_time
-
-    print('Yaaay')
     url = 'https://cvnav.accuware.com/api/v1/sites/100308/dragonfly/devices/'
-    # MSG FROM accuware
-    #     [
-    #   {
-    #     "mac": "DCNVC458VMMD",
-    #     "device_status": {
-    #       "battery": 36,
-    #       "fw_version": "2.1.0-a25",
-    #       "received_at": 1539611233413,
-    #       "type_of_device": "Dragonfly"
-    #     },
-    #     "position": {
-    #       "siteId": "100308",
-    #       "levelId": 0,
-    #       "source": "Dragonfly",
-    #       "device": "DCNVC458VMMD",
-    #       "fixed_at": 1539611233413,
-    #       "lat": 47.52889209247521,
-    #       "lng": 8.582779991059633,
-    #       "alt": -4.470291959490914,
-    #       "precision": 0.0
-    #     },
-    #     "device_type": "D",
-    #     "udo": {
-    #       "name": "SM-G955F",
-    #       "desc": "SM-G955F"
-    #     },
-    #     "current_server_time": 1539611327573
-    #   }
-    # ]
 
-    print (user)
+
+    # Set origin
     utm0 = utm.from_latlon(47.52889209247521, 8.582779991059633)
     print('Getting data from camera_dragonfly')
     while True:
-
+            # MSG FROM accuware
+            #     [
+            #   {
+            #     "mac": "DCNVC458VMMD",
+            #     "device_status": {
+            #       "battery": 36,
+            #       "fw_version": "2.1.0-a25",
+            #       "received_at": 1539611233413,
+            #       "type_of_device": "Dragonfly"
+            #     },
+            #     "position": {
+            #       "siteId": "100308",
+            #       "levelId": 0,
+            #       "source": "Dragonfly",
+            #       "device": "DCNVC458VMMD",
+            #       "fixed_at": 1539611233413,
+            #       "lat": 47.52889209247521,
+            #       "lng": 8.582779991059633,
+            #       "alt": -4.470291959490914,
+            #       "precision": 0.0
+            #     },
+            #     "device_type": "D",
+            #     "udo": {
+            #       "name": "SM-G955F",
+            #       "desc": "SM-G955F"
+            #     },
+            #     "current_server_time": 1539611327573
+            #   }
+            # ]
         # Request JSON from website
         r = requests.get(url, auth = (user, mpd))#,auth=('USR', 'MPD')
-        # print r.headers.get("mac")#['mac']
-
         # Transform requestion to JSON
         json_data = json.loads(r.text)
-        # print json_data[0]['position']['lat']
-        # print json_data[0]['position']['lng']
 
         # Get only lat and long
         utm1 = utm.from_latlon(json_data[0]['position']['lat'], json_data[0]['position']['lng'])
@@ -141,15 +134,7 @@ def run():
         last_y = odom.pose.pose.position.y
         last_yaw = rot
         last_time = rospy.Time.now()
-    # rospy.Subscriber("/base_link_odom_camera_is1500", Odometry, turning_callback)
 
-    # timer = rospy.Timer(rospy.Duration(0.1), main_timer_callback)
-
-    # blinkertimer = rospy.Timer(rospy.Duration(0.5), blinker_state_callback) #set the duration of this callback to set the speed of the blink
-
-    # spin() simply keeps python from exiting until this node is stopped
-
-    # timer.shutdown()
 
 if __name__ == '__main__':
 
