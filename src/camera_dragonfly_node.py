@@ -6,6 +6,7 @@ import rospy
 import time
 import tf
 import numpy as np
+import utm
 import json
 import requests
 
@@ -19,40 +20,38 @@ from std_msgs.msg import String
 import math
 
 
-#Publish directly what we need for the motor
-# global motor_pub
-# motorpub = rospy.Publisher('/motor_state', String, queue_size=100)
-#
-# global mot_pub
-# mot_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
-# global mot_msg
-# # Global variable..
-# global ready_to_go
-# ready_to_go = rospy.set_param('/camera_dragonfly/ready_to_go', False)#
-# global success
-# success = rospy.set_param('/camera_dragonfly/success', False)#
-# global target_x
-# target_x = rospy.set_param('/camera_dragonfly/target_x', 1.0)
-# global target_y
-# target_y = rospy.set_param('/camera_dragonfly/target_y', -1.5)
-
-
-# def turning_callback(msg):
-#
-#     print("Successful mission !")
-
-
+#define variable
+global last_x
+global last_y
+global last_yaw
+global last_time
+global rot
+global pub_odom
+global user
+global mpd
+user = rospy.get_param('/camera_dragonfly_node/usr')
+mpd = rospy.get_param('/camera_dragonfly_node/mpd')
+last_x = 0
+last_y = 0
+last_yaw = 0
+last_time = 0.0
+rot = 0
+pub_odom = rospy.Publisher('/GPS_Dragonfly', Odometry, queue_size=1)
 
 
 def run():
 
+    global last_x
+    global last_y
+    global last_yaw
+    global last_time
+    global rot
+    global pub_odom
+    global user
+    global mpd
 
-    start_time = time.time()
-    rospy.loginfo("Camera_dragonfly_node starting up")
-    # pos_gps_pub = rospy.Publisher('/odom_dragonfly', Twist, queue_size=100)
-    #basic program code
+    last_time
 
-    rospy.init_node('Camera_dragonfly_node')
     print('Yaaay')
     url = 'https://cvnav.accuware.com/api/v1/sites/100308/dragonfly/devices/'
     # MSG FROM accuware
@@ -84,26 +83,64 @@ def run():
     #     "current_server_time": 1539611327573
     #   }
     # ]
-    r = requests.get(url, auth=)#,auth=('USR', 'MPD')
-    # print r.headers.get("mac")#['mac']
-    json_data = json.loads(r.text)
-    print json_data[0]['position']['lat']
-    print json_data[0]['position']['lng']
-    # print(payload)
-    # print r.text #allow to screen the JSON file
-    # data = json.loads(r.json)
-    # data['position']
-    # r.status_code
-    # r.headers['content-type']
-    # r.encoding
-    # r.text
-    # j = r.json()
-    # msg = j.loads('{"position" : "lat", }')
-    # print msg['lat']
 
+    print (user)
+    utm0 = utm.from_latlon(47.52889209247521, 8.582779991059633)
+    print('Getting data from camera_dragonfly')
+    while True:
 
+        # Request JSON from website
+        r = requests.get(url, auth = (user, mpd))#,auth=('USR', 'MPD')
+        # print r.headers.get("mac")#['mac']
 
+        # Transform requestion to JSON
+        json_data = json.loads(r.text)
+        # print json_data[0]['position']['lat']
+        # print json_data[0]['position']['lng']
 
+        # Get only lat and long
+        utm1 = utm.from_latlon(json_data[0]['position']['lat'], json_data[0]['position']['lng'])
+        # pri0nt utm
+        p
+        odom = Odometry()
+        odom.header.stamp = rospy.Time.now()
+        odom.header.frame_id = 'odom_cam_drag'
+        odom.child_frame_id = 'base_link_cam_drag'
+        odom.pose.pose.position.x = utm1[0] - utm0[0] #utm_pos.easting - self.origin.x
+        odom.pose.pose.position.y = utm1[1]- utm0[1] #utm_pos.northing - self.origin.y
+        odom.pose.pose.position.z = 0
+
+        dt = (rospy.Time.now() - last_time).to_sec()
+        dx = (odom.pose.pose.position.x - last_x)
+        dy = (odom.pose.pose.position.y - last_y)
+        dyaw = 0 # TODO radians(self.rot - self.last_yaw)
+
+        vx = dx/dt
+        vy = dy/dt
+        vth = 0 #TODO dyaw/dt
+        odom.twist.twist = Twist(Vector3(vx, vy, 0), Vector3(0, 0, vth))
+    	# Orientation
+    	# Save this on an instance variable, so that it can be published
+    	# with the IMU message as well.
+        orientation = tf.transformations.quaternion_from_euler( radians(0), radians(0), radians(0), 'syxz')#-radians(rot-90), 'syxz')
+        odom.pose.pose.orientation = Quaternion(0, 0, 0, 1)#orientation)
+    	# odom.pose.covariance[21] = self.orientation_covariance[0] = np.var(self.x_vec)
+    	# odom.pose.covariance[28] = self.orientation_covariance[4] = np.var(self.y_vec)
+    	# odom.pose.covariance[35] = self.orientation_covariance[8] = pow(2, 0.001)
+        #
+    	# #~ # Twist is relative to vehicle frame
+        #
+    	# TWIST_COVAR[0] = pow(2, 0.0001)
+    	# TWIST_COVAR[7] = pow(2, 0.0001)
+    	# TWIST_COVAR[14] = pow(2, 0.0001)
+        #
+    	# odom.twist.covariance = TWIST_COVAR
+
+        pub_odom.publish(odom)
+        last_x = odom.pose.pose.position.x
+        last_y = odom.pose.pose.position.y
+        last_yaw = rot
+        last_time = rospy.Time.now()
     # rospy.Subscriber("/base_link_odom_camera_is1500", Odometry, turning_callback)
 
     # timer = rospy.Timer(rospy.Duration(0.1), main_timer_callback)
@@ -111,14 +148,21 @@ def run():
     # blinkertimer = rospy.Timer(rospy.Duration(0.5), blinker_state_callback) #set the duration of this callback to set the speed of the blink
 
     # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
+
     # timer.shutdown()
 
 if __name__ == '__main__':
-    print("start")
+
+    start_time = time.time()
+    rospy.loginfo("Camera_dragonfly_node starting up")
+    # pos_gps_pub = rospy.Publisher('/odom_dragonfly', Twist, queue_size=100)
+    #basic program code
+    rospy.init_node('Camera_dragonfly_node')
+    last_time = rospy.Time.now()
+    # while True:
     try:
         run()
     except rospy.ROSInterruptException:
         pass
 
-    print("end")
+    rospy.spin()
