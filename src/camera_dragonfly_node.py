@@ -6,7 +6,8 @@ import rospy
 import time
 import tf
 import numpy as np
-
+import json
+import requests
 
 from geometry_msgs.msg import Quaternion, Point, Pose, Twist, Vector3
 from std_msgs.msg import Empty, Float32
@@ -53,6 +54,56 @@ def run():
 
     rospy.init_node('Camera_dragonfly_node')
     print('Yaaay')
+    url = 'https://cvnav.accuware.com/api/v1/sites/100308/dragonfly/devices/'
+    # MSG FROM accuware
+    #     [
+    #   {
+    #     "mac": "DCNVC458VMMD",
+    #     "device_status": {
+    #       "battery": 36,
+    #       "fw_version": "2.1.0-a25",
+    #       "received_at": 1539611233413,
+    #       "type_of_device": "Dragonfly"
+    #     },
+    #     "position": {
+    #       "siteId": "100308",
+    #       "levelId": 0,
+    #       "source": "Dragonfly",
+    #       "device": "DCNVC458VMMD",
+    #       "fixed_at": 1539611233413,
+    #       "lat": 47.52889209247521,
+    #       "lng": 8.582779991059633,
+    #       "alt": -4.470291959490914,
+    #       "precision": 0.0
+    #     },
+    #     "device_type": "D",
+    #     "udo": {
+    #       "name": "SM-G955F",
+    #       "desc": "SM-G955F"
+    #     },
+    #     "current_server_time": 1539611327573
+    #   }
+    # ]
+    r = requests.get(url, auth=)#,auth=('USR', 'MPD')
+    # print r.headers.get("mac")#['mac']
+    json_data = json.loads(r.text)
+    print json_data[0]['position']['lat']
+    print json_data[0]['position']['lng']
+    # print(payload)
+    # print r.text #allow to screen the JSON file
+    # data = json.loads(r.json)
+    # data['position']
+    # r.status_code
+    # r.headers['content-type']
+    # r.encoding
+    # r.text
+    # j = r.json()
+    # msg = j.loads('{"position" : "lat", }')
+    # print msg['lat']
+
+
+
+
     # rospy.Subscriber("/base_link_odom_camera_is1500", Odometry, turning_callback)
 
     # timer = rospy.Timer(rospy.Duration(0.1), main_timer_callback)
@@ -71,4 +122,3 @@ if __name__ == '__main__':
         pass
 
     print("end")
-    mot_pub.publish(mot_msg)
