@@ -54,7 +54,7 @@ def run():
     url = 'https://cvnav.accuware.com/api/v1/sites/100308/dragonfly/devices/'
 
     # Set origin
-    utm0 = [468589.12, 5264024.62]#utm.from_latlon(47.52889209247521, 8.582779991059633)
+    utm0 = [468589.12, 5264024.62]# Joao origin #utm.from_latlon(47.52889209247521, 8.582779991059633)
 
     print('Getting data from camera_dragonfly')
     while True:
