@@ -2,7 +2,7 @@
     <node name="camera_dragonfly_node" pkg="camera_dragonfly" type="camera_dragonfly_node.py" output="screen">
       <!-- <remap from="base_link_odom_camera_is1500" to="odom"/>   -->
       <rosparam command= "load"
-        file="/home/jonathan/Desktop/loginfo.yaml"/>
+        file="/home/ew/Desktop/loginfo.yaml"/>
     </node>
-    
+
 </launch>
