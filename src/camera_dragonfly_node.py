@@ -48,13 +48,14 @@ def run():
     global rot
     global pub_odom
     global user
-    global mpd
 
+    global mpd
+    init = False
     url = 'https://cvnav.accuware.com/api/v1/sites/100308/dragonfly/devices/'
 
-
     # Set origin
-    utm0 = utm.from_latlon(47.52889209247521, 8.582779991059633)
+    utm0 = [468589.12, 5264024.62]#utm.from_latlon(47.52889209247521, 8.582779991059633)
+
     print('Getting data from camera_dragonfly')
     while True:
             # MSG FROM accuware
@@ -90,23 +91,28 @@ def run():
         r = requests.get(url, auth = (user, mpd))#,auth=('USR', 'MPD')
         # Transform requestion to JSON
         json_data = json.loads(r.text)
-
+        # print(json_data[1]['udo']['name'])
         # Get only lat and long
+        if(init == False):
+            print('init')
+            utm0 = utm.from_latlon(json_data[0]['position']['lat'], json_data[0]['position']['lng'])
+            init = True
         utm1 = utm.from_latlon(json_data[0]['position']['lat'], json_data[0]['position']['lng'])
+        # print('lat, lon : ', utm1[0], utm1[1])
         # print utm
         odom = Odometry()
         odom.header.stamp = rospy.Time.now()
         odom.header.frame_id = 'odom_cam_drag'
         odom.child_frame_id = 'base_link_cam_drag'
-        odom.pose.pose.position.x = utm1[0] - utm0[0] #utm_pos.easting - self.origin.x
-        odom.pose.pose.position.y = utm1[1]- utm0[1] #utm_pos.northing - self.origin.y
+        odom.pose.pose.position.x = (utm1[0] - utm0[0]) #utm_pos.easting - self.origin.x
+        odom.pose.pose.position.y = (utm1[1]- utm0[1]) #utm_pos.northing - self.origin.y
         odom.pose.pose.position.z = 0
 
         dt = (rospy.Time.now() - last_time).to_sec()
         dx = (odom.pose.pose.position.x - last_x)
         dy = (odom.pose.pose.position.y - last_y)
         dyaw = 0 # TODO radians(self.rot - self.last_yaw)
-
+        print('Time dt: ', dt, 's, x, y: ', odom.pose.pose.position.x, odom.pose.pose.position.y)
         vx = dx/dt
         vy = dy/dt
         vth = 0 #TODO dyaw/dt
@@ -148,5 +154,4 @@ if __name__ == '__main__':
         run()
     except rospy.ROSInterruptException:
         pass
-
     rospy.spin()
