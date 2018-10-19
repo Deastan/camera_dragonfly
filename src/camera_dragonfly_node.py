@@ -29,6 +29,8 @@ global rot
 global pub_odom
 global user
 global mpd
+global deviceNumber # smartphone we want to follow
+deviceNumber = 1
 user = rospy.get_param('/camera_dragonfly_node/usr')
 mpd = rospy.get_param('/camera_dragonfly_node/mpd')
 last_x = 0
@@ -48,7 +50,7 @@ def run():
     global rot
     global pub_odom
     global user
-
+    global deviceNumber
     global mpd
     init = False
     url = 'https://cvnav.accuware.com/api/v1/sites/100308/dragonfly/devices/'
@@ -95,9 +97,9 @@ def run():
         # Get only lat and long
         if(init == False):
             print('init')
-            utm0 = utm.from_latlon(json_data[0]['position']['lat'], json_data[0]['position']['lng'])
+            utm0 = utm.from_latlon(json_data[deviceNumber]['position']['lat'], json_data[deviceNumber]['position']['lng'])
             init = True
-        utm1 = utm.from_latlon(json_data[0]['position']['lat'], json_data[0]['position']['lng'])
+        utm1 = utm.from_latlon(json_data[deviceNumber]['position']['lat'], json_data[deviceNumber]['position']['lng'])
         # print('lat, lon : ', utm1[0], utm1[1])
         # print utm
         odom = Odometry()
