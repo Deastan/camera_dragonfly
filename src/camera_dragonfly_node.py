@@ -59,7 +59,8 @@ def run():
     utm0 = [468589.12, 5264024.62]# Joao origin #utm.from_latlon(47.52889209247521, 8.582779991059633)
 
     print('Getting data from camera_dragonfly')
-    while True:
+    # rateTime = rospy.Rate(10)
+    while not rospy.is_shutdown():
             # MSG FROM accuware
             #     [
             #   {
@@ -141,6 +142,7 @@ def run():
         last_y = odom.pose.pose.position.y
         last_yaw = rot
         last_time = rospy.Time.now()
+        # rateTime.sleep()
 
 
 if __name__ == '__main__':
