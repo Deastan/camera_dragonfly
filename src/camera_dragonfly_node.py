@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+# Code not nice but have to be fast test!
+
 #Basic imports
 import sys
 import rospy
@@ -19,47 +21,41 @@ import tf.transformations
 from std_msgs.msg import String
 import math
 
+if __name__ == '__main__':
 
-#define variable
-global last_x
-global last_y
-global last_yaw
-global last_time
-global rot
-global pub_odom
-global user
-global mpd
-global deviceNumber # smartphone we want to follow
-deviceNumber = 1
-user = rospy.get_param('/camera_dragonfly_node/usr')
-mpd = rospy.get_param('/camera_dragonfly_node/mpd')
-last_x = 0
-last_y = 0
-last_yaw = 0
-last_time = 0.0
-rot = 0
-pub_odom = rospy.Publisher('/GPS_Dragonfly', Odometry, queue_size=1)
-
-
-def run():
-
-    global last_x
-    global last_y
-    global last_yaw
-    global last_time
-    global rot
-    global pub_odom
-    global user
-    global deviceNumber
-    global mpd
+    start_time = time.time()
+    rospy.loginfo("Camera_dragonfly_node starting up")
+    # pos_gps_pub = rospy.Publisher('/odom_dragonfly', Twist, queue_size=100)
+    #basic program code
+    rospy.init_node('Camera_dragonfly_node')
+    #define variable
+    last_x
+    last_y
+    last_yaw
+    last_time
+    rot
+    pub_odom
+    user
+    mpd
+    deviceNumber # smartphone we want to follow
+    deviceNumber = 1
+    user = rospy.get_param('/camera_dragonfly_node/usr')
+    mpd = rospy.get_param('/camera_dragonfly_node/mpd')
+    last_x = 0
+    last_y = 0
+    last_yaw = 0
+    last_time = 0.0
+    rot = 0
+    pub_odom = rospy.Publisher('/GPS_Dragonfly', Odometry, queue_size=1)
+    last_time = rospy.Time.now()
     init = False
     url = 'https://cvnav.accuware.com/api/v1/sites/100308/dragonfly/devices/'
 
     # Set origin
-    utm0 = [468589.12, 5264024.62]# Joao origin #utm.from_latlon(47.52889209247521, 8.582779991059633)
-
+    # utm0 = [468589.12, 5264024.62]# Joao origin #utm.from_latlon(47.52889209247521, 8.582779991059633)
+    utm0 = [469665.57, 5262709.04]# Embrach origin #utm.from_latlon(47.517102, 8.597093)
     print('Getting data from camera_dragonfly')
-    # rateTime = rospy.Rate(10)
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
             # MSG FROM accuware
             #     [
@@ -105,8 +101,8 @@ def run():
         # print utm
         odom = Odometry()
         odom.header.stamp = rospy.Time.now()
-        odom.header.frame_id = 'odom_cam_drag'
-        odom.child_frame_id = 'base_link_cam_drag'
+        odom.header.frame_id = 'odom'
+        odom.child_frame_id = 'base_link'
         odom.pose.pose.position.x = (utm1[0] - utm0[0]) #utm_pos.easting - self.origin.x
         odom.pose.pose.position.y = (utm1[1]- utm0[1]) #utm_pos.northing - self.origin.y
         odom.pose.pose.position.z = 0
@@ -142,20 +138,6 @@ def run():
         last_y = odom.pose.pose.position.y
         last_yaw = rot
         last_time = rospy.Time.now()
-        # rateTime.sleep()
+        rate.sleep()
 
-
-if __name__ == '__main__':
-
-    start_time = time.time()
-    rospy.loginfo("Camera_dragonfly_node starting up")
-    # pos_gps_pub = rospy.Publisher('/odom_dragonfly', Twist, queue_size=100)
-    #basic program code
-    rospy.init_node('Camera_dragonfly_node')
-    last_time = rospy.Time.now()
-    # while True:
-    try:
-        run()
-    except rospy.ROSInterruptException:
-        pass
-    rospy.spin()
+        print("End of the main!")
