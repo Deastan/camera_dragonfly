@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Code not nice but have to be fast test!
+# Code not nice but have to do a fast test!
 
 #Basic imports
 import sys
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         utm1 = utm.from_latlon(json_data[deviceNumber]['position']['lat'], json_data[deviceNumber]['position']['lng'])
         # print('lat, lon : ', utm1[0], utm1[1])
         # print utm
-
+        # utm1 = [2.0,1.0]
         # Create message
         odom = Odometry()
         odom.header.stamp = rospy.Time.now()
